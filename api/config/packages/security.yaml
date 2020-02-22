@@ -38,18 +38,7 @@ security:
                     - lexik_jwt_authentication.jwt_token_authenticator
 
         main:
-            anonymous: false
-            stateless: true
-            provider: app_user_provider
-            json_login:
-                check_path: /api/login_check
-                username_path: email
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
-            guard:
-                authenticators:
-                    - lexik_jwt_authentication.jwt_token_authenticator
+            anonymous: lazy
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
 
