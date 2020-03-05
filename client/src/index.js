@@ -16,12 +16,26 @@ import 'font-awesome/css/font-awesome.css';
 import * as serviceWorker from './serviceWorker';
 // Import your reducers and routes here
 import Welcome from './Welcome';
+// import reducers
+import post from './reducers/post/';
+import media from './reducers/media/';
+import user from './reducers/user/';
+
+//import routes
+import postRoutes from './routes/post';
+import mediaRoutes from './routes/media';
+import userRoutes from './routes/user';
+
+// Add routes to <Switch>
 
 const history = createBrowserHistory();
 const store = createStore(
   combineReducers({
     router: connectRouter(history),
     form,
+    post,
+    media,
+    user
     /* Add your reducers here */
   }),
   applyMiddleware(routerMiddleware(history), thunk)
@@ -32,6 +46,9 @@ ReactDOM.render(
     <ConnectedRouter history={history}>
       <Switch>
         <Route path="/" component={Welcome} strict={true} exact={true}/>
+        { postRoutes }
+        { mediaRoutes }
+        { userRoutes }
         {/* Add your routes here */}
         <Route render={() => <h1>Not Found</h1>} />
       </Switch>

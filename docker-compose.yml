@@ -8,6 +8,7 @@ x-cache-from:
 
 services:
   php:
+    restart: on-failure
     build:
       context: ./api
       target: api_platform_php

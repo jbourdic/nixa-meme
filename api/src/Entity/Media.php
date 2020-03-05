@@ -2,13 +2,54 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  *
  * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\MediaRepository")
+ * @ApiResource(
+ *     iri="http://schema.org/MediaObject",
+ *     normalizationContext={
+ *         "groups"={"media_object_read"}
+ *     },
+ *     collectionOperations={
+ *         "post"={
+ *             "controller"=CreateMediaObjectAction::class,
+ *             "deserialize"=false,
+ *             "access_control"="is_granted('ROLE_USER')",
+ *             "validation_groups"={"Default", "media_object_create"},
+ *             "openapi_context"={
+ *                 "requestBody"={
+ *                     "content"={
+ *                         "multipart/form-data"={
+ *                             "schema"={
+ *                                 "type"="object",
+ *                                 "properties"={
+ *                                     "file"={
+ *                                         "type"="string",
+ *                                         "format"="binary"
+ *                                     }
+ *                                 }
+ *                             }
+ *                         }
+ *                     }
+ *                 }
+ *             }
+ *         },
+ *         "get"
+ *     },
+ *     itemOperations={
+ *         "get"
+ *     }
+ * )
+ * @Vich\Uploadable
  */
 class Media
 {
@@ -35,14 +76,40 @@ class Media
     private $extension;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @var string|null
+     *
+     * @ApiProperty(iri="http://schema.org/contentUrl")
+     * @Groups({"media_object_read"})
      */
-    private $path;
+    public $contentUrl;
+
+    /**
+     * @var File|null
+     *
+     * @Assert\NotNull(groups={"media_object_create"})
+     * @Vich\UploadableField(mapping="media_object", fileNameProperty="filePath")
+     */
+    public $file;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(nullable=true)
+     */
+    public $filePath;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $isMain;
+
+    /**
+     * @var
+     *
+     * @
+     * @ORM\ManyToOne(targetEntity=Post::class)
+     */
+    private $post;
 
     public function getId(): ?int
     {
@@ -85,15 +152,57 @@ class Media
         return $this;
     }
 
-    public function getPath(): ?string
+    /**
+     * @return string|null
+     */
+    public function getContentUrl(): ?string
     {
-        return $this->path;
+        return $this->contentUrl;
     }
 
-    public function setPath(?string $path): self
+    /**
+     * @param string|null $contentUrl
+     * @return Media
+     */
+    public function setContentUrl(?string $contentUrl): Media
     {
-        $this->path = $path;
+        $this->contentUrl = $contentUrl;
+        return $this;
+    }
 
+    /**
+     * @return File|null
+     */
+    public function getFile(): ?File
+    {
+        return $this->file;
+    }
+
+    /**
+     * @param File|null $file
+     * @return Media
+     */
+    public function setFile(?File $file): Media
+    {
+        $this->file = $file;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFilePath(): ?string
+    {
+        return $this->filePath;
+    }
+
+    /**
+     * @param string|null $filePath
+     * @return Media
+     */
+    public function setFilePath(?string $filePath): Media
+    {
+        $this->filePath = $filePath;
         return $this;
     }
 
@@ -106,6 +215,24 @@ class Media
     {
         $this->isMain = $isMain;
 
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPost()
+    {
+        return $this->post;
+    }
+
+    /**
+     * @param mixed $post
+     * @return Media
+     */
+    public function setPost($post)
+    {
+        $this->post = $post;
         return $this;
     }
 }

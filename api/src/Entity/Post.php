@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -29,9 +30,20 @@ class Post
     private $content;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @var User
+     *
+     * @ORM\ManyToOne(targetEntity=User::class)
      */
-    private $media;
+    private $user;
+
+    /**
+     * @var Media[]|null
+     *
+     * @ORM\OneToMany(targetEntity=Media::class, mappedBy="post")
+     * @ORM\JoinColumn(nullable=true)
+     * @ApiProperty(iri="http://schema.org/image")
+     */
+    private $medias;
 
     public function getId(): ?int
     {
@@ -62,15 +74,39 @@ class Post
         return $this;
     }
 
-    public function getMedia(): ?string
+    /**
+     * @return Media[]|null
+     */
+    public function getMedias(): ?array
     {
-        return $this->media;
+        return $this->medias;
     }
 
-    public function setMedia(?string $media): self
+    /**
+     * @param Media[]|null $medias
+     * @return Post
+     */
+    public function setMedias(?array $medias): Post
     {
-        $this->media = $media;
+        $this->medias = $medias;
+        return $this;
+    }
 
+    /**
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     * @return Post
+     */
+    public function setUser(User $user): Post
+    {
+        $this->user = $user;
         return $this;
     }
 }
